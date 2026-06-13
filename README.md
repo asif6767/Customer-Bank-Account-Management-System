@@ -1,29 +1,4 @@
-Banking-Management-System/
-│
-├── 📄 README.md
-├── 📄 LICENSE
-├── 📄 .gitignore
-│
-├── 📁 src/
-│   └── main.c
-│
-├── 📁 include/
-│   └── banking.h
-│
-├── 📁 data/
-│   └── record.dat
-│
-├── 📁 docs/
-│   ├── flowchart.png
-│   ├── system-design.md
-│   └── screenshots/
-│       └── menu.png
-│
-├── 📁 build/
-│   └── (compiled files - ignored in git)
-│
-└── 📁 assets/
-    └── banner.png
+
 
 # 🏦 Customer Account Banking Management System (C Project)
 
@@ -274,6 +249,33 @@ It demonstrates how real-world applications can be built using:
 * Modular functions
 * File-based data storage
 * Basic financial calculations
+
+  Banking-Management-System/
+│
+├── 📄 README.md
+├── 📄 LICENSE
+├── 📄 .gitignore
+│
+├── 📁 src/
+│   └── main.c
+│
+├── 📁 include/
+│   └── banking.h
+│
+├── 📁 data/
+│   └── record.dat
+│
+├── 📁 docs/
+│   ├── flowchart.png
+│   ├── system-design.md
+│   └── screenshots/
+│       └── menu.png
+│
+├── 📁 build/
+│   └── (compiled files - ignored in git)
+│
+└── 📁 assets/
+    └── banner.png
 
 ---
 
