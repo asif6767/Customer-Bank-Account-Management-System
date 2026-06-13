@@ -1,3 +1,30 @@
+Banking-Management-System/
+│
+├── 📄 README.md
+├── 📄 LICENSE
+├── 📄 .gitignore
+│
+├── 📁 src/
+│   └── main.c
+│
+├── 📁 include/
+│   └── banking.h
+│
+├── 📁 data/
+│   └── record.dat
+│
+├── 📁 docs/
+│   ├── flowchart.png
+│   ├── system-design.md
+│   └── screenshots/
+│       └── menu.png
+│
+├── 📁 build/
+│   └── (compiled files - ignored in git)
+│
+└── 📁 assets/
+    └── banner.png
+
 # 🏦 Customer Account Banking Management System (C Project)
 
 A simple console-based **Banking Management System** written in C language.
@@ -251,3 +278,6 @@ It demonstrates how real-world applications can be built using:
 ---
 
 👨‍💻 Developed for learning purposes (C Mini Project)
+
+
+
