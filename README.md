@@ -1,285 +1,193 @@
+# 🏦 Customer Account Banking Management System
 
-
-# 🏦 Customer Account Banking Management System (C Project)
-
-A simple console-based **Banking Management System** written in C language.
-This project demonstrates the use of **structures, file handling, functions, loops, and conditionals** to simulate real-world banking operations.
+A console-based banking app written in **C**. It handles customer accounts, transactions, interest calculations, and login — all stored in CSV files with hashed passwords.
 
 ---
 
-# 📌 Features
+## ✨ Features
 
-* Create new bank account
-* View all customers
-* Search account details
-* Edit account information
-* Deposit & withdraw money
-* Delete account
-* Interest calculation (Fixed/Saving accounts)
-* Password protected login system
-
----
-
-# 🔐 Login System
-
-The program starts with a password check:
-
-```c
-char password[10] = "jubayer";
-```
-
-User must enter correct password to access the system.
+- Secure login with SHA-256 hashed passwords
+- Create, update, and remove customer accounts
+- Deposit and withdraw with balance tracking
+- Interest calculation based on account type
+- Search accounts by number or name
+- View all active customers in a list
+- Every change is logged — nothing is permanently deleted
+- Duplicate account number and User ID protection
 
 ---
 
-# ⚙️ Overall Flow of the Program
+## 📁 Files & What They Do
 
-```
-main()
-   │
-   ▼
-Password Verification
-   │
-   ▼
-menu()
-   │
- ┌─────────────── Banking Operations ───────────────┐
- │ 1. new_acc()                                     │
- │ 2. edit()                                        │
- │ 3. transact()                                    │
- │ 4. see()                                         │
- │ 5. erase()                                       │
- │ 6. view_list()                                   │
- │ 7. close()                                       │
- └──────────────────────────────────────────────────┘
-   │
-   ▼
-record.dat (File Storage)
-```
+| File | What it does |
+|------|-------------|
+| `banking.h` | Central header — structs, globals, all function prototypes |
+| `main.c` | Entry point, starts the login screen |
+| `globals.c` | Shared global variables used across all files |
+| `security.c` | SHA-256 engine, saves and verifies hashed credentials |
+| `utils.c` | Interest formula, delay function, navigation helpers |
+| `login.c` | Login screen and new user registration |
+| `menu.c` | Main menu, routes to each feature |
+| `new_acc.c` | Creates a new customer account |
+| `edit.c` | Updates account info (address, phone, age) |
+| `transact.c` | Handles deposits and withdrawals |
+| `see.c` | View account details and interest projection |
+| `erase.c` | Soft-deletes and archives an account |
+| `view_list.c` | Shows a table of all active accounts |
+| `excel.c` | All CSV read/write operations |
+| `close_app.c` | Clean exit with goodbye message |
 
 ---
 
-# 📁 File Handling Used
+## 🔧 Functions & What They Do
 
-This project uses file handling to store permanent customer data.
+| Function | File | Purpose |
+|----------|------|---------|
+| `show_login` | `login.c` | Welcome screen, login or register |
+| `menu` | `menu.c` | Main menu dispatcher |
+| `open_account` | `new_acc.c` | Create new customer account |
+| `update_account` | `edit.c` | Edit address, phone, or age |
+| `do_transaction` | `transact.c` | Deposit or withdraw money |
+| `view_account` | `see.c` | View account details + interest |
+| `remove_account` | `erase.c` | Archive and soft-delete account |
+| `list_accounts` | `view_list.c` | Print all active accounts |
+| `calc_interest` | `utils.c` | Calculates simple interest |
+| `cpu_pause` | `utils.c` | Short delay between screens |
+| `nav_simple` | `utils.c` | After action: menu or exit |
+| `nav_prompt` | `utils.c` | After error: retry, menu, or exit |
+| `bx_digest_hex` | `security.c` | Hash a string to SHA-256 hex |
+| `bx_store_cred` | `security.c` | Save hashed credentials to file |
+| `bx_verify_cred` | `security.c` | Check login credentials |
+| `bx_uid_taken` | `security.c` | Check if a User ID already exists |
+| `csv_create_account` | `excel.c` | Write new account CSV file |
+| `csv_append_txn` | `excel.c` | Log a transaction row |
+| `csv_append_update` | `excel.c` | Log a field change row |
+| `csv_mark_removed` | `excel.c` | Append removal record |
+| `csv_rebuild_master` | `excel.c` | Rebuild `all_customers.csv` |
+| `exit_system` | `close_app.c` | Exit the application |
 
-### Functions Used:
+---
 
-| Function    | Purpose                         |
-| ----------- | ------------------------------- |
-| `fopen()`   | Opens file (read/write/append)  |
-| `fclose()`  | Closes file                     |
-| `fprintf()` | Writes formatted data into file |
-| `fscanf()`  | Reads formatted data from file  |
-| `remove()`  | Deletes old file                |
-| `rename()`  | Renames temporary file          |
+## 🔐 Security System
 
-### Main File:
+Passwords are **never stored as plain text**. Both the User ID and password go through a custom SHA-256 implementation and only the 64-character hex hash is saved in `credentials.dat`.
 
 ```
-record.dat → Stores all customer records
+credentials.dat format:
+1001 | uid_hash (64 chars) | pwd_hash (64 chars)
 ```
 
+- No external crypto library — SHA-256 is written from scratch in `security.c`
+- When an account is removed, the confirming User ID is hashed and stored in the archive for audit
+- Duplicate User IDs are blocked before any record is created
+
 ---
 
-# 🧮 Formula Used
+## ⚙️ Algorithms Used
 
-### 💰 Simple Interest Formula
+**SHA-256** — Custom implementation for password hashing. Pads input into 512-bit blocks, runs 64 compression rounds using bitwise operations (Ch, Maj, Σ0, Σ1, σ0, σ1), and produces a 256-bit digest.
 
-Used for Fixed and Saving accounts:
+**Simple Interest** — Used for all account interest calculations.
+
+**Linear Search** — Name-based account lookup scans all CSV files one by one.
+
+**Case-insensitive String Search** — Custom `icase_search()` for partial name matching without POSIX dependency.
+
+**In-place File Rewriting** — File is loaded into memory, the target row is replaced, then written back — used when updating balance or account info.
+
+---
+
+## 💳 Account Types
+
+| Type | Rate | Term | Withdraw |
+|------|:----:|------|---------|
+| `Saving` | 8% / year | Monthly projection | Anytime |
+| `Current` | 0% | No interest | Anytime |
+| `Fixed1` | 9% / year | 1 year | After 1 year |
+| `Fixed2` | 11% / year | 2 years | After 2 years |
+| `Fixed3` | 13% / year | 3 years | After 3 years |
+
+> Fixed accounts block all deposits and withdrawals through the transaction menu.
+
+---
+
+## 📐 Interest Formula & Examples
 
 ```
-SI = (P × R × T) / 100
+Interest = (Principal × Rate × Time) / 100
+Maturity = Principal + Interest
 ```
 
-Where:
-
-* P = Principal amount
-* R = Rate of interest
-* T = Time (years)
-
----
-
-# 🧩 All Functions Explained
-
-## 1. `main()`
-
-* Starts program
-* Checks password
-* Calls `menu()`
+| Account | Principal | Rate | Time | Interest | Maturity |
+|---------|----------:|:----:|------|:--------:|:--------:|
+| Saving | $5,000 | 8% | 1 month | $33.33 | $5,033.33 |
+| Fixed1 | $10,000 | 9% | 1 yr | $900.00 | $10,900.00 |
+| Fixed2 | $10,000 | 11% | 2 yrs | $2,200.00 | $12,200.00 |
+| Fixed3 | $10,000 | 13% | 3 yrs | $3,900.00 | $13,900.00 |
 
 ---
 
-## 2. `menu()`
+## ⌨️ Input Guide
 
-* Displays main menu
-* Redirects user to different functions using switch-case
+| Field | Type | Example |
+|-------|------|---------|
+| Account number | Integer | `1001` |
+| First / Last name | String (no spaces) | `John` |
+| Date (any) | mm/dd/yyyy | `06/15/2025` |
+| Age | Integer | `29` |
+| Current / Permanent address | Full line (spaces OK) | `123 Main Street` |
+| Citizenship number | String | `NID1234567` |
+| Phone number | Digits only | `01712345678` |
+| Opening deposit / Amount | Decimal | `5000.00` |
+| Account type | Exact string | `Saving` `Current` `Fixed1` `Fixed2` `Fixed3` |
+| User ID / Password | String (no spaces) | `john_01` / `Pass99` |
+| Menu choice | Integer | `1` |
 
----
-
-## 3. `new_acc()`
-
-* Creates new bank account
-* Stores user data in `record.dat`
-
----
-
-## 4. `view_list()`
-
-* Shows list of all customers
-* Displays account number, name, address, phone
-
----
-
-## 5. `edit()`
-
-* Updates customer information
-* Allows change of:
-
-  * Address
-  * Phone number
+**Things to avoid:**
+- Don't type `$` before amounts — numbers only
+- Don't use spaces in name fields
+- Don't use dashes in phone numbers
+- Account type must be one of the five exact values above
+- Dates must be `mm/dd/yyyy` — not `5 Jun 2025`
 
 ---
 
-## 6. `transact()`
+## 🔑 Key Concepts
 
-* Handles banking transactions
-* Supports:
-
-  * Deposit
-  * Withdraw
-* Updates balance in file
-
----
-
-## 7. `erase()`
-
-* Deletes an existing account
-* Removes record from `record.dat`
+- **Struct-based data model** — `struct account` and `struct date` carry all customer data
+- **File-per-account storage** — each customer gets their own `user_<acc_no>.csv`
+- **Append-only audit log** — updates and transactions are appended, never overwritten
+- **Soft delete** — removed accounts are renamed to `removed_<acc_no>.csv`, never truly erased
+- **Function pointer in nav** — `nav_prompt()` accepts a retry callback so it works for any feature
+- **Windows API scanning** — `FindFirstFile` / `FindNextFile` used to glob CSV files at runtime
 
 ---
 
-## 8. `see()`
+## 🔨 Build
 
-* Searches account by:
+```bash
+# Using Makefile
+make
 
-  * Account number
-  * Name
-* Displays full account details
-* Calculates interest if applicable
-
----
-
-## 9. `interest()`
-
-* Calculates simple interest
-* Used for fixed and saving accounts
-
----
-
-## 10. `fordelay()`
-
-* Creates delay effect (loading animation)
-* Used for UI simulation
-
----
-
-## 11. `close()`
-
-* Exits program
-* Displays developer message
-
----
-
-## 12. `system() calls`
-
-Used for:
-
-* `system("cls")` → Clear screen
-* `system("color 9")` → Change console color
-
----
-
-# 🏦 Account Types Supported
-
-* Saving Account → 8% interest
-* Current Account → No interest
-* Fixed1 → 1 year (9%)
-* Fixed2 → 2 years (11%)
-* Fixed3 → 3 years (13%)
-
----
-
-# 📊 Example Interest Calculation
-
-If:
-
-```
-P = 10000
-R = 9%
-T = 1 year
+# Manual
+gcc -Wall -O2 -o banking.exe main.c globals.c security.c utils.c menu.c \
+    login.c new_acc.c edit.c transact.c see.c erase.c view_list.c \
+    excel.c close_app.c -lm
 ```
 
-Then:
+> Requires Windows + GCC (MinGW-w64 or TDM-GCC)
 
-```
-SI = (10000 × 9 × 1) / 100 = 900
-```
+**Files created at runtime:**
 
----
-
-# 🧠 Key Concepts Used
-
-* Structures (`struct`)
-* File Handling
-* Functions
-* Switch-case
-* Loops
-* String comparison (`strcmp`)
-* Conditional logic
-* Windows console control
+| File | Purpose |
+|------|---------|
+| `credentials.dat` | Hashed login credentials |
+| `user_<acc_no>.csv` | Per-account record and transaction log |
+| `removed_<acc_no>.csv` | Archived removed accounts |
+| `all_customers.csv` | Master list of active accounts |
 
 ---
 
-# 🚀 Conclusion
+## ✅ Conclusion
 
-This project is a basic simulation of a banking system using C programming.
-It demonstrates how real-world applications can be built using:
-
-* Modular functions
-* File-based data storage
-* Basic financial calculations
-
-  Banking-Management-System/
-│
-├── 📄 README.md
-├── 📄 LICENSE
-├── 📄 .gitignore
-│
-├── 📁 src/
-│   └── main.c
-│
-├── 📁 include/
-│   └── banking.h
-│
-├── 📁 data/
-│   └── record.dat
-│
-├── 📁 docs/
-│   ├── flowchart.png
-│   ├── system-design.md
-│   └── screenshots/
-│       └── menu.png
-│
-├── 📁 build/
-│   └── (compiled files - ignored in git)
-│
-└── 📁 assets/
-    └── banner.png
-
----
-
-👨‍💻 Developed for learning purposes (C Mini Project)
-
-
-
+This project covers the full lifecycle of a bank account in pure C — registration, login, transactions, updates, and closure — with every change logged to CSV files that can be opened directly in Excel. Security is handled through a custom SHA-256 engine with no external dependencies. The modular file structure keeps each feature clean and independent, making the codebase easy to read, extend, or maintain.
