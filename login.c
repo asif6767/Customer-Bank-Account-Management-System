@@ -103,6 +103,7 @@ static void do_login(void)
 }
 
 /* New account registration form */
+
 static void do_register(void)
 {
     struct account a;
